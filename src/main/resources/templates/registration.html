@@ -4,59 +4,126 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Modernize Free</title>
+    <title>Future Sales Prediction - Registration</title>
 
-    <link rel="stylesheet" href="/css/registration.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
 
-<body>
-<!--  Body Wrapper -->
-<div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
-     data-sidebar-position="fixed" data-header-position="fixed">
-    <div
-            class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
-        <div class="d-flex align-items-center justify-content-center w-100">
-            <div class="row justify-content-center w-100">
-                <div class="col-md-8 col-lg-6 col-xxl-3">
-                    <div class="card mb-0">
-                        <div class="card-body">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex items-center justify-center p-4 relative overflow-x-hidden">
 
-                            <p class="text-center">Student Registration</p>
-                            <form th:action="@{/register}" method="post" th:object="${user}">
+<div class="w-full max-w-[480px] bg-white border border-slate-200 rounded-2xl p-6 md:p-10 shadow-sm space-y-6">
 
-                                <div class="mb-3">
-                                    <label for="userId" class="form-label">Student ID</label>
-                                    <input type="text" class="form-control" id="UserId" th:field="*{userId}" aria-describedby="textHelp">
-                                </div>
+    <div class="text-center space-y-2">
+        <div class="inline-flex w-10 h-10 bg-indigo-600 rounded-xl items-center justify-center text-white shadow-sm mb-1">
+            <i class="fa-solid fa-id-card-clip text-sm"></i>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 tracking-tight">Create an Account</h2>
+    </div>
 
-                                <div class="mb-3">
-                                    <label for="exampleInputtext1" class="form-label">Name</label>
-                                    <input type="text" class="form-control" id="exampleInputtext1" th:field="*{name}" aria-describedby="textHelp">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="exampleInputEmail1" class="form-label">Email Address</label>
-                                    <input type="email" class="form-control" id="exampleInputEmail1" th:field="*{email}" aria-describedby="emailHelp">
-                                </div>
-                                <div class="mb-4">
-                                    <label for="exampleInputPassword1" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="exampleInputPassword1" th:field="*{password}">
-                                </div>
+    <form th:action="@{/register}" method="post" th:object="${user}" class="space-y-4">
 
-                                <input type="submit" value="Sign Up" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">
-                                <!--                                <a href="./index.html" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Sign Up</a>-->
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <p class="fs-4 mb-0 fw-bold">Already have an Account?</p>
-                                    <a class="text-primary fw-bold ms-2" href="/login">Sign In</a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+        <div class="space-y-1.5">
+            <label for="UserId" class="block text-xs font-bold text-slate-500 uppercase tracking-wider">User / Student ID</label>
+            <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
+                        <i class="fa-regular fa-id-badge text-sm"></i>
+                    </span>
+                <input type="text" class="w-full h-11 pl-10 border border-slate-200 bg-slate-50/50 rounded-xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400" id="UserId" th:field="*{userId}" placeholder="e.g. STU1024" required>
             </div>
         </div>
+
+        <div class="space-y-1.5">
+            <label for="exampleInputtext1" class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name</label>
+            <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
+                        <i class="fa-regular fa-user text-sm"></i>
+                    </span>
+                <input type="text" class="w-full h-11 pl-10 border border-slate-200 bg-slate-50/50 rounded-xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400" id="exampleInputtext1" th:field="*{name}" placeholder="John Doe" required>
+            </div>
+        </div>
+
+        <div class="space-y-1.5">
+            <label for="exampleInputEmail1" class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address</label>
+            <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
+                        <i class="fa-regular fa-envelope text-sm"></i>
+                    </span>
+                <input type="email" class="w-full h-11 pl-10 border border-slate-200 bg-slate-50/50 rounded-xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400" id="exampleInputEmail1" th:field="*{email}" placeholder="name@company.com" required>
+            </div>
+        </div>
+
+        <div class="space-y-1.5">
+            <label for="exampleInputPassword1" class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Password</label>
+            <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
+                        <i class="fa-solid fa-lock text-sm"></i>
+                    </span>
+                <input type="password" class="w-full h-11 pl-10 border border-slate-200 bg-slate-50/50 rounded-xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400" id="exampleInputPassword1" th:field="*{password}" placeholder="••••••••" required>
+            </div>
+        </div>
+
+        <div class="pt-3">
+            <button type="submit" class="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl flex items-center justify-center gap-2 shadow-sm shadow-indigo-600/10 transition-all">
+                Sign Up Account <i class="fa-solid fa-check text-xs"></i>
+            </button>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 text-center text-sm text-slate-500">
+            Already have an Account?
+            <a class="text-indigo-600 font-semibold hover:text-indigo-700 hover:underline ms-1" th:href="@{/login}">Sign In</a>
+        </div>
+
+    </form>
+</div>
+
+
+<div id="successModal"
+     th:if="${param.success != null or param.register != null}"
+     class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-all opacity-150">
+
+    <div class="bg-white rounded-2xl border border-slate-100 p-6 md:p-8 shadow-2xl w-full max-w-sm text-center space-y-5 transform scale-100 transition-transform duration-300">
+
+        <div class="inline-flex w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full items-center justify-center mx-auto ring-8 ring-emerald-50/50">
+            <i class="fa-solid fa-circle-check text-3xl animate-bounce"></i>
+        </div>
+
+        <div class="space-y-1">
+            <h3 class="text-lg font-bold text-slate-900 tracking-tight">Registration Successful!</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Your professional forecasting account has been successfully verified and ready to deploy.</p>
+        </div>
+
+        <div class="pt-2">
+            <a th:href="@{/login}" class="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm">
+                Proceed to Login <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+        </div>
+
     </div>
 </div>
 
-</body>
 
+<script>
+    // Modal window layer auto escape safety block (optional click background override)
+    const modal = document.getElementById('successModal');
+    if(modal) {
+        modal.addEventListener('click', function(e) {
+            if(e.target === modal) {
+                // Modal block wrapper can fade out gracefully
+                modal.classList.add('hidden');
+            }
+        });
+    }
+</script>
+
+</body>
 </html>
