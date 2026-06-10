@@ -2,91 +2,151 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Product Location Map</title>
-    <link rel="stylesheet" href="/css/map.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Sales - Product Location Map</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        /* Leaflet layer overrides to prevent page rendering height breaks */
+        #map { height: 420px; z-index: 1; }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen p-4 md:p-8">
 
-<h2>Select a Product to View Its Location</h2>
+<div class="max-w-6xl mx-auto space-y-6">
 
-<!-- ✅ Product Selection Form -->
-<form th:action="@{/map}" method="post">
-    <select name="selectedProductId" required>
-        <option value="" disabled selected>Select product</option>
-        <option th:each="product : ${productList}"
-                th:value="${product.pId}"
-                th:text="${product.name + ' (' + product.location + ')'}">
-        </option>
-    </select>
-    <button type="submit">View</button>
-</form>
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+        <div class="space-y-1">
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+                <i class="fa-solid fa-map-location-dot text-indigo-600 text-xl"></i> Geographic Anchor Map
+            </h1>
+        </div>
 
-<br><br>
+        <a href="/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl shadow-sm transition-all self-start md:self-auto">
+            <i class="fa-solid fa-arrow-left text-xs"></i> Back to Dashboard
+        </a>
+    </div>
 
-<!-- ✅ Show map and details only if product is selected -->
-<div th:if="${selectedProduct != null}">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
-    <!-- ✅ MAP BOX -->
-    <div id="map"></div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+            <div class="text-slate-900 font-bold text-sm tracking-wide uppercase flex items-center gap-2">
+                <i class="fa-solid fa-filter text-indigo-600 text-xs"></i> Target Filter
+            </div>
 
-    <br>
+            <form th:action="@{/map}" method="post" class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Select Registered Product</label>
+                    <div class="relative">
+                        <select name="selectedProductId" class="w-full h-11 pl-4 pr-10 border border-slate-200 bg-slate-50/50 rounded-xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none cursor-pointer text-slate-700 font-medium" required>
+                            <option value="" disabled selected>Choose system asset...</option>
+                            <option th:each="product : ${productList}"
+                                    th:value="${product.pId}"
+                                    th:text="${product.name + ' (' + product.location + ')'}">
+                            </option>
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 pointer-events-none text-xs">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </span>
+                    </div>
+                </div>
 
-    <!-- ✅ Product Info Table -->
-    <table>
-        <thead>
-        <tr>
-            <th>Product Name</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Location</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td th:text="${selectedProduct.name}"></td>
-            <td th:text="${selectedProduct.category}"></td>
-            <td th:text="${selectedProduct.price}"></td>
-            <td th:text="${selectedProduct.location}"></td>
-            <td th:text="${selectedProduct.latitude}"></td>
-            <td th:text="${selectedProduct.longitude}"></td>
-        </tr>
-        </tbody>
-    </table>
+                <button type="submit" class="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all">
+                    Render Anchor Location <i class="fa-solid fa-location-crosshairs text-xs"></i>
+                </button>
+            </form>
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+
+            <div th:if="${selectedProduct != null}" class="space-y-6">
+
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden p-3 relative">
+                    <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-1 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-ping"></span> Live Spatial Rendering Layer
+                    </div>
+                    <div id="map" class="w-full rounded-xl border border-slate-100 shadow-inner"></div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <div class="p-4 bg-slate-50 border-b border-slate-100 font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-indigo-500"></i> Anchor Asset Telemetry
+                    </div>
+
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full border-collapse text-left text-sm whitespace-nowrap">
+                            <thead>
+                            <tr class="bg-slate-50/50 text-slate-500 font-semibold border-b border-slate-200 text-xs uppercase tracking-wider">
+                                <th class="py-3 px-5">Name</th>
+                                <th class="py-3 px-5">Category</th>
+                                <th class="py-3 px-5 text-right">Price</th>
+                                <th class="py-3 px-5">Location</th>
+                                <th class="py-3 px-5 font-mono text-xs text-center">Latitude</th>
+                                <th class="py-3 px-5 font-mono text-xs text-center">Longitude</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="py-3.5 px-5 font-semibold text-slate-900" th:text="${selectedProduct.name}">Dynamic Product Name</td>
+                                <td class="py-3.5 px-5">
+                                    <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md text-xs font-semibold" th:text="${selectedProduct.category}">Category</span>
+                                </td>
+                                <td class="py-3.5 px-5 text-right font-mono font-bold text-slate-900" th:text="'$' + ${selectedProduct.price}">$0.00</td>
+                                <td class="py-3.5 px-5 text-slate-500 text-xs">
+                                    <i class="fa-solid fa-building-warehouse text-slate-400 me-1"></i> <span th:text="${selectedProduct.location}">Location</span>
+                                </td>
+                                <td class="py-3.5 px-5 text-center font-mono text-xs text-indigo-600 bg-indigo-50/20" th:text="${selectedProduct.latitude}">0.00</td>
+                                <td class="py-3.5 px-5 text-center font-mono text-xs text-indigo-600 bg-indigo-50/20" th:text="${selectedProduct.longitude}">0.00</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <div th:if="${selectedProduct == null}" class="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm text-center max-w-md mx-auto space-y-3">
+                <div class="w-12 h-12 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto border border-slate-100">
+                    <i class="fa-solid fa-location-dot text-base"></i>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="text-sm font-bold text-slate-900">No Anchor Point Rendered</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">Please use the target selector widget on the left panel to load spatial maps and tracking streams data charts.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
 
 </div>
 
-<a href="/dashboard">
-    <button style="margin-top: 20px;">
-        🔙 Back to Dashboard
-    </button>
-</a>
-
-<!--Open-source JS library to show interactive maps-->
-<!--OpenStreetMap (OSM) provides free map data under an open license.
-What does it do in Leaflet?
-Leaflet shows this attribution text usually at the bottom right or bottom left corner of the map.
-
-It lets users know the map data is from OpenStreetMap and links to their site.
-
-This is part of respecting the terms of use for open map data providers.-->
-<!-- ✅ Leaflet Map Script -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
     let selected = [[${selectedProduct}]];
     if (selected && selected.latitude && selected.longitude) {
+        // Setup Map frame center coordinates base matching selected dynamic point parameters
         let map = L.map('map').setView([selected.latitude, selected.longitude], 12);
+
+        // Render beautiful raster tiles from global OpenStreetMap registry safely
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+            attribution: 'Map data © <a href=\"https://openstreetmap.org\">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        L.marker([selected.latitude, selected.longitude])
-            .addTo(map)
-            .bindPopup(selected.name + "<br>" + selected.location)
+        // Add clean humanised graphic target marker pin point overlay asset tracking marker
+        L.marker([selected.latitude, selected.longitude]).addTo(map)
+            .bindPopup(`<b>${selected.name}</b><br>${selected.location}`)
             .openPopup();
     }
     /*]]>*/
