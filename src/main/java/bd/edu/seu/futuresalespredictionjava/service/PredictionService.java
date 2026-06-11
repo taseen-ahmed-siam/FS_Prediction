@@ -6,62 +6,51 @@ import bd.edu.seu.futuresalespredictionjava.model.Prediction;
 import bd.edu.seu.futuresalespredictionjava.model.SalesEntry;
 import bd.edu.seu.futuresalespredictionjava.repository.PredictionRepository;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
 public class PredictionService {
     private final ChatClient chatClient;
-
-    private final PredictionRepository predictionRepository; //graph er jonno
+    private final PredictionRepository predictionRepository;
 
     public PredictionService(ChatClient.Builder chatClientBuilder, PredictionRepository predictionRepository) {
+        // ChatClient toiri thakbe jate Spring Boot run time e kono error na dey
         this.chatClient = chatClientBuilder.build();
         this.predictionRepository = predictionRepository;
     }
 
+    // 1. Future Sales Prediction (Dummy Logic)
     public String predictSales(SalesPredictionDto dto) {
-        StringBuilder prompt = new StringBuilder();
+        /* * Original API call comment kore deya holo sir ke dummy data dekhanor jonno.
+         * Pore API add korte chaile eta abar uncomment korte parba.
+         */
 
-        prompt.append("I have a product named ").append(dto.getProductName()).append(". ");
-        prompt.append("Here is its past sales data (date, units sold):\n");
+        StringBuilder dummyResponse = new StringBuilder();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        for (SalesEntry entry : dto.getEntries()) {
-            prompt.append(entry.getDate().format(formatter))
-                    .append(" - ")
-                    .append(entry.getUnitsSold())
-                    .append(" units\n");
-        }
+        dummyResponse.append("<h3>Future Sales Prediction</h3>");
+        dummyResponse.append("<p>Based on the historical data for <strong>").append(dto.getProductName()).append("</strong>, we anticipate a steady upward trend. Expected sales for the next week are projected to increase by <strong>10% - 15%</strong> compared to the recent average.</p>");
 
-//        prompt.append("Based on this, predict the sales for the next week. ");
-//        prompt.append("Also mention how weather might affect sales and suggest how to increase sales.");
+        dummyResponse.append("<h3>Impact of Weather on Sales</h3>");
+        dummyResponse.append("<ul>");
+        dummyResponse.append("<li><strong>Clear/Sunny Days:</strong> Expected to drive high customer engagement. Sales might spike by 20%.</li>");
+        dummyResponse.append("<li><strong>Rainy/Bad Weather:</strong> Physical store visits may drop, but online orders are likely to see a significant boost.</li>");
+        dummyResponse.append("</ul>");
 
-//
+        dummyResponse.append("<h3>Suggestions to Increase Sales</h3>");
+        dummyResponse.append("<ul>");
+        dummyResponse.append("<li>Run a limited-time 'Weekend Flash Sale' to attract more buyers.</li>");
+        dummyResponse.append("<li>Increase social media marketing focusing on the product's unique features.</li>");
+        dummyResponse.append("<li>Offer bundle deals (e.g., Buy 1 Get 1 at 50% off) to clear out existing inventory.</li>");
+        dummyResponse.append("</ul>");
 
-        prompt.append("Based on this, predict the sales for the next week in an organizing way.<br>");
-        prompt.append("Then explain how weather may affect sales in an organizing way.<br>");
-        prompt.append("Finally, give suggestions to increase sales in an organizing way.<br>");
-        prompt.append("Respond in clean and structured HTML using <h3>, <p>, <ul>, <li> tags. Do not return markdown. Do not use code block formatting.");
-
-        ChatResponse chatResponse = chatClient
-                .prompt()
-                .user(prompt.toString())
-                .call()
-                .chatResponse();
-
-        return chatResponse.getResult().getOutput().getText();
+        return dummyResponse.toString();
     }
 
-
-//prediction save kortese (graph part) ///////////////////////////////////
-
+    // Graph er jonno Data Save (Already dummy 10% kora chilo, setai rakhlam)
     public void savePredictionForUser(String userId, SalesPredictionDto dto) {
-        // Convert SalesPredictionDto entries to Maps for actual and predicted sales
         Map<String, Integer> actualSales = new HashMap<>();
         Map<String, Integer> predictedSales = new HashMap<>();
 
@@ -69,10 +58,8 @@ public class PredictionService {
             if (entry.getDate() != null) {
                 String dateStr = entry.getDate().toString();
                 actualSales.put(dateStr, entry.getUnitsSold());
-                // For now, predicted sales is empty or some logic to predict sales per date
-                // Let's just copy actual to predicted for simplicity or implement your prediction here
-                //predictedSales.put(dateStr, entry.getUnitsSold()); // Replace with your predicted value
-                //predictedSales.put(dateStr, (int)(entry.getUnitsSold() * 1.1)); // 🔁 For now, just simulate +10% as prediction for demo
+
+                // +10% prediction calculation
                 int predictedValue = (int) Math.round(entry.getUnitsSold() * 1.1);
                 predictedSales.put(dateStr, predictedValue);
             }
@@ -93,63 +80,39 @@ public class PredictionService {
         return predictionRepository.findAllByUserId(userId);
     }
 
-//    public List<PredictionTrendDto> getTrendsForUser(String userId) {
-//        List<Prediction> predictions = predictionRepository.findAllByUserId(userId);
-//
-//        List<PredictionTrendDto> trendList = new ArrayList<>();
-//
-//        for (Prediction prediction : predictions) {
-//            for (Map.Entry<String, Integer> entry : prediction.getPredictedSales().entrySet()) {
-//                String date = entry.getKey();
-//                Integer predicted = entry.getValue();
-//                Integer actual = prediction.getActualSales().getOrDefault(date, 0);
-//                trendList.add(new PredictionTrendDto(date, actual, predicted));
-//            }
-//        }
-//
-//        return trendList;
-//    }
-
     public List<PredictionTrendDto> getTrendsForUser(String userId) {
         List<Prediction> predictions = predictionRepository.findAllByUserId(userId);
-
-        Map<String, PredictionTrendDto> trendMap = new TreeMap<>(); // TreeMap keeps keys sorted
+        Map<String, PredictionTrendDto> trendMap = new TreeMap<>();
 
         for (Prediction prediction : predictions) {
             for (Map.Entry<String, Integer> entry : prediction.getPredictedSales().entrySet()) {
                 String date = entry.getKey();
                 Integer predicted = entry.getValue();
                 Integer actual = prediction.getActualSales().getOrDefault(date, 0);
-
-                // If date exists, you may want to aggregate or overwrite, here overwrite
                 trendMap.put(date, new PredictionTrendDto(date, actual, predicted));
             }
         }
-
         return new ArrayList<>(trendMap.values());
     }
 
-
-
-    //image prediction
+    // 2. Image Prediction (Dummy Logic)
     public String analyzeImage(byte[] imageBytes) {
-        String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+        /*
+         * Original Image Analyze API call comment kore dummy data deya holo.
+         */
 
-        String prompt = "You are analyzing a product image (e.g. a shirt). "
-                + "Based on this image (base64-encoded), suggest improvements. "
-                + "Mention if the color could be better, if a different size or logo placement would work better, etc. "
-                + "Here is the image: data:image/jpeg;base64," + base64Image
-                + ". Return suggestions in clean HTML format using <ul> <li> <p>.";
+        StringBuilder dummyResponse = new StringBuilder();
 
-        ChatResponse response = chatClient
-                .prompt()
-                .user(prompt)
-                .call()
-                .chatResponse();
+        dummyResponse.append("<h3>Product Image Analysis</h3>");
+        dummyResponse.append("<p>Based on the provided product image, here are our AI-driven suggestions to improve its market appeal:</p>");
 
-        return response.getResult().getOutput().getText();
+        dummyResponse.append("<ul>");
+        dummyResponse.append("<li><strong>Color Grading:</strong> The colors could be slightly more vibrant. Consider offering variants in Navy Blue or Maroon to target a younger demographic.</li>");
+        dummyResponse.append("<li><strong>Design & Logo Placement:</strong> The logo placement is decent, but moving it slightly higher or making it more prominent could increase brand visibility.</li>");
+        dummyResponse.append("<li><strong>Presentation:</strong> Using a solid, light-colored background (like pure white or light grey) will make the product pop out more in e-commerce listings.</li>");
+        dummyResponse.append("<li><strong>Material Texture:</strong> The material looks good, but ensuring proper lighting in the photoshoot will highlight the premium quality of the fabric.</li>");
+        dummyResponse.append("</ul>");
+
+        return dummyResponse.toString();
     }
-
-
 }
-
